@@ -1,5 +1,5 @@
 
-# 3Scale Policy
+# 3Scale Custom Policy Example
 
 Projeto contendo `Policies` que pode ser utilizadas no `Red Hat 3Scale API Management`
 
