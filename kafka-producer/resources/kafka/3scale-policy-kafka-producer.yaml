@@ -1,0 +1,12 @@
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  labels:
+    strimzi.io/cluster: kafka-cluster # Altere aqui para refletir ao nome do cluster Kafka
+  name: 3scale-policy-kafka-producer # Altere aqui para mudar o nome do recurso
+  namespace: kafka # Altere aqui caso seja outro namespace
+spec:
+  config: {}
+  partitions: 1
+  replicas: 3
+  topicName: 3scale-policy-kafka-producer # Altere aqui para mudar o nome do recurso

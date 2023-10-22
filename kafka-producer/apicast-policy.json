@@ -1,0 +1,22 @@
+{
+  "$schema": "http://apicast.io/policy-v1.1/schema#manifest#",
+  "name": "Kafka Producer",
+  "summary": "A policy for sending data to Kafka",
+  "description": "Policy Kafka Producer allows Red Hat 3Scale API Management to provide an option for sending Request and Response information that passes through the APICast component. This Policy is designed to enrich your data stream and send such information to Red Hat AMQ Streams as valuable traffic insights related to APICast and API Management.",
+  "version": "builtin",
+  "configuration": {
+    "type": "object",
+    "properties": {
+      "KAFKA_BRIDGE": {
+        "type": "string",
+        "title": "Kafka Bridge",
+        "description": "The kafka bridge."
+      },
+      "KAFKA_TOPIC": {
+        "type": "string",
+        "title": "Kafka Topic",
+        "description": "Your kafka topic."
+      }
+    }
+  }
+}

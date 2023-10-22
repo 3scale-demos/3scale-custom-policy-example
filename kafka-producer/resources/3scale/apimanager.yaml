@@ -1,0 +1,35 @@
+apiVersion: apps.3scale.net/v1alpha1
+kind: APIManager
+metadata:
+  name: apimanager # Altere aqui para mudar o nome do recurso
+  namespace: 3scale # Altere aqui caso seja outro namespace
+spec:
+  imageStreamTagImportInsecure: false
+  externalComponents:
+    system:
+      database: false
+  resourceRequirementsEnabled: true
+  monitoring:
+    enablePrometheusRules: false
+    enabled: true
+  system:
+    appSpec: {}
+    sidekiqSpec: {}
+    sphinxSpec: {}
+  appLabel: 3scale-api-management
+  zync:
+    appSpec: {}
+    queSpec: {}
+  backend:
+    cronSpec: {}
+    listenerSpec: {}
+    workerSpec: {}
+  tenantName: 3scale
+  apicast:
+    managementAPI: status
+    openSSLVerify: false
+    productionSpec: {}
+    registryURL: 'http://apicast-staging:8090/policies'
+    responseCodes: true
+    stagingSpec: {}
+  wildcardDomain: apps.my-domain.com # Altera aqui para corresponder ao domínio `*.apps` do OpenShift
