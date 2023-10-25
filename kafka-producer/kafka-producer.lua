@@ -93,27 +93,38 @@ function _M:post_action(context)
     
     -- Request
     local request_headers = ngx.req.get_headers() or nil
-    local request_headers_size = string.len(ngx.encode_args(request_headers)) or 0
+    local request_headers_size = 0
     local query_param = ngx.req.get_uri_args() or nil
-    -- local request_body = ngx.req.get_body_data()
     local request_body_size = ngx.var.request_length or 0
-    
+
+    -- Check if request_headers is not nil
+    if request_headers then
+        -- Calculate the request headers size
+        for name, value in pairs(request_headers) do
+            request_headers_size = request_headers_size + #name + #value
+        end
+    end
+
     -- Response
     local response_headers = ngx.resp.get_headers() or nil
-    local response_headers_size = string.len(ngx.encode_args(response_headers)) or 0
-    -- local response_body = ngx.var.response_body or nil
+    local response_headers_size = 0
     local response_body_size = ngx.var.bytes_sent or 0
+
+    -- Check if request_headers is not nil
+    if response_headers then
+        -- Calculate the request headers size
+        for name, value in pairs(response_headers) do
+            response_headers_size = response_headers_size + #name + #value
+        end
+    end
 
     -- Total size in bytes
     local total_size = (request_headers_size + response_headers_size + request_body_size + response_body_size)
 
-    -- ngx.log(ngx.WARN, 'Context: ', inspect(ngx.ctx.context.current.credentials))
     local service_id = ngx.var.service_id or nil
 
-    -- local app_id = (ngx.ctx.context.current.credentials.app_id) or nil
     local app_id = (ngx.ctx.context and ngx.ctx.context.current and ngx.ctx.context.current.credentials and ngx.ctx.context.current.credentials.app_id) or nil
 
-    -- local user_key = (ngx.ctx.context.current.credentials.user_key) or nil
     local user_key = (ngx.ctx.context and ngx.ctx.context.current and ngx.ctx.context.current.credentials and ngx.ctx.context.current.credentials.user_key) or nil
 
     data = {
@@ -133,7 +144,6 @@ function _M:post_action(context)
         response = {
             status = ngx.status,
             headers = response_headers,
-            -- body = response_body,
             response_headers_size = response_headers_size,
             response_body_size = response_body_size
         },
