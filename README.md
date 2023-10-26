@@ -1,6 +1,5 @@
-
 # 3Scale Custom Policy Example
 
-Projeto contendo `Policies` que pode ser utilizadas no `Red Hat 3Scale API Management`
+Project containing `Policies` that can be used in `Red Hat 3Scale API Management`
 
 - [kafka-producer](./kafka-producer/README.md): 3Scale - Policy - Kafka Producer

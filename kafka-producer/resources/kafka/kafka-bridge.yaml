@@ -1,10 +1,10 @@
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaBridge
 metadata:
-  name: kafka-bridge # Altere aqui para mudar o nome do recurso
-  namespace: kafka # Altere aqui caso seja outro namespace
+  name: kafka-bridge # Change here to change the resource name
+  namespace: kafka # Change here if it is another namespace
 spec:
-  bootstrapServers: 'kafka-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092' # Altera aqui para corresponder ao endreço do `Kafka Bootstrap Servers`
+  bootstrapServers: 'kafka-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092' # Change here to match the `Kafka Bootstrap Servers` address
   http:
-    port: 8080 # Altere aqui para mudar a porta
+    port: 8080 # Change here to change the port
   replicas: 1

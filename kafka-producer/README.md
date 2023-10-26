@@ -1,62 +1,62 @@
 # 3Scale - Policy - Kafka Producer
 
-## Pré-requisitos
+## Prerequisites
 
-  - Um Cluster do Red Hat OpenShift Container Platform [1]
+  - A Red Hat OpenShift Container Platform Cluster [1]
   - Red Hat 3Scale API Management [2]
-    - Implantado no Namespace: `3scale`.
+    - Deployed in Namespace: `3scale`.
   - Red Hat AMQ Streams [3]
-    - Implantado no Namespace: `kafka`.
+    - Deployed in Namespace: `kafka`.
     - Kafka Cluster
-      - Nome: `kafka-cluster`
+      - Name: `kafka-cluster`
     - Kafka Bridge
       - URL: `http://kafka-bridge-bridge-service.kafka.svc.cluster.local:8080`
-    - Kafka Tópic
-        - Nome: `3scale-policy-kafka-producer`
+    - Kafka Topic
+        - Name: `3scale-policy-kafka-producer`
   
-  ***Disponibilizei no diretório ./resources alguns arquivos com extensão `.yam` com intuito de facilitar a implantação dos componentes utilizados para o funcionamento desta Policy***
+  ***Some files with the extension `.yaml` are available in the ./resources directory in order to facilitate the implementation of the components used for the operation of this Policy***
 
-    - Lembre-se de alterar os arquivos com extensão `.yaml` para refletir os valores do ambiente no qual está sendo implantado esta Policy.
+    - Remember to change files with the `.yaml` extension to reflect the values of the environment in which this Policy is being deployed.
 
-## Descrição
+## Description
 
-  A Policy Kafka Producer, possibilita ao Red Hat 3Scale API Management fornecer uma opção para o envio das informações de Request e Response que trafegam no componente APICast. Essa Policy foi projetada para enriquecer seu fluxo de dados e enviar tais informações ao Red Hat AMQ Streams como insights valiosos do tráfego relacionados ao APICast e API Management.
+  Policy Kafka Producer enables Red Hat 3Scale API Management to provide an option for sending Request and Response information that passes through the APICast component. This Policy is designed to enrich your data stream and send such information to Red Hat AMQ Streams as valuable traffic insights related to APICast and API Management.
 
-## Implantando a Policy
+## Implementing the Policy
 
-  Para realizar a implantação da Policy precisamos realizar alguns passos.
+  To implement the Policy we need to perform some steps.
 
-  > 01 - Criar o recurso ConfigMap no namespace que está a implantação do Red Hat 3Scale API Management.
+  > 01 - Create the ConfigMap resource in the namespace that is deploying Red Hat 3Scale API Management.
 
   ```bash
-    oc delete secret 3scale-policy-kafka-producer -n 3scale
+    oc delete secret policy-kafka-producer -n 3scale
     
-    oc create secret generic 3scale-policy-kafka-producer \
+    oc create secret generic policy-kafka-producer \
       --from-file=apicast-policy.json=./apicast-policy.json \
       --from-file=init.lua=./init.lua \
       --from-file=kafka-producer.lua=./kafka-producer.lua \
       -n 3scale
   ```
   
-  *Sempre que houver a necessidade de alteração do ConfigMap será necessário realizar o rollout dos PODs `apicast-staging-*` e `apicast-production-*`*
+  *Whenever there is a need to change the ConfigMap, it will be necessary to rollout the PODs `apicast-staging-*` e `apicast-production-*`*
 
-  > 02 - No recurso, `kind: APIManager`, adicionar o seguinte conteúdo:
+  > 02 - In the resource, `kind: APIManager`, add the following content:
   ```bash
 apicast:
     productionSpec:
       customPolicies:
         - name: kafka-producer
           secretRef:
-            name: 3scale-policy-kafka-producer
+            name: policy-kafka-producer
           version: builtin
     stagingSpec:
       customPolicies:
         - name: kafka-producer
           secretRef:
-            name: 3scale-policy-kafka-producer
+            name: policy-kafka-producer
           version: builtin
   ```
-  > 03 (Opcional) - Ainda para o recurso, `kind: APIManager`, você pode habilitar o log a nível DEBUG, basta adicionar o seguinte conteúdo:
+  > 03 (Optional) - Still for the resource, `kind: APIManager`, your can enable logging at DEBUG, just add the following content:
   ```bash
 spec:
   apicast: 
@@ -66,18 +66,18 @@ spec:
       logLevel: debug
   ```
 
-## Validando o funcionamento da Policy
+## Validating the operation of the Policy
 
-  Antes de testarmos o funcionamento da Policy, precisamos testar os se o tópico do recurso Kafka Topic estão em pleno funcionamento usando o recurso Kafka Bridge.
+  Before we evaluate the operation of the Policy, we need to verify that the topic in the Kafka Topic resource is fully functioning using the Kafka Bridge resource.
 
-  > 01 - Registre um consumidor para o tópico em questão, basta acessar o POD do Kafka via terminal e executar o comando:
+  > 01 - Register a consumer for the topic in question, simply access the Kafka POD via terminal and execute the command:
   ```bash
   ./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic 3scale-policy-kafka-producer
   ```
 
-  > 02 - Agora com o consumer ouvindo os eventos para o tópico, podemos enviar uma mensagem de teste, o resultado esperado é visualizar a mensagem no log do terminal do consumidor.
+  > 02 - Now with the consumer listening to the events for the topic, we can send a test message, the expected result is to see the message in the consumer's terminal log.
 
-  ***Para o nosso exemplo, a URL do Kafka Bridge é `http://kafka-bridge-bridge-service.kafka.svc.cluster.local:8080`, logo, informamos tal endereço no comando CURL abaixo:***
+  ***For our example, the Kafka Bridge URL is `http://kafka-bridge-bridge-service.kafka.svc.cluster.local:8080`, therefore, we inform the address in the CURL command below:***
 
   ```bash
   curl -X POST \
@@ -87,43 +87,43 @@ spec:
     "http://kafka-bridge-bridge-service.kafka.svc.cluster.local:8080/topics/3scale-policy-kafka-producer"
   ```
 
-  > 03 - Agora que validamos o funcionamento do tópico no Kafka, precisamos acessar o Portal do Red Hat 3Scale API Management e associar a Policy Kafka Producer a uma Produto para que possamos validar o seu funcionamento.
+  > 03 - Now that we have validated that the topic works in Kafka, we need to access the Red Hat 3Scale API Management Portal and associate the Policy Kafka Producer with a Product so that we can validate its operation.
 
-  Acesse a página: Home > Products > Product ID > Integration > Policies
+  Access the page: Home > Products > Product ID > Integration > Policies
   
   Clique em `+ Add policy`
 
   ![Alt text](./imagens/image.png)
 
-  Procure pela Policy Kafka Producer e clique nela
+  Search for Policy Kafka Producer and click on it
 
   ![Alt text](./imagens/image-1.png)
 
-  Você verá que ela foi carregada na lista de Policy Chain
+  You will see that it has been loaded into the Policy Chain list
 
   ![Alt text](./imagens/image-2.png)
 
-  Você agora precisa configurar 02 propriedades na Policy, são elas `Kafka Bridge` e `Kafka Topic`
+  You now need to configure 02 properties in the Policy, they are `Kafka Bridge` and `Kafka Topic`
 
   ![Alt text](./imagens/image-3.png)
 
-  Feito isso, clique em `Update Policy`, você será redirecionado para a Página de `Policy Chain`
+  Once done, click on `Update Policy`, you will be redirected to the `Policy Chain` Page
 
-  Agora mude a ordem da Policy, fazendo com que a Policy Kafka Producer seje executada ante da Policy default do Red Hat 3Scale API Management
+  Now change the order of the Policy, making the Kafka Producer Policy run before the Red Hat 3Scale API Management default Policy
 
   ![Alt text](./imagens/image-4.png)
 
-  Lembre-se de clicar em `Update Policy Chain`, caso contrário, suas alterações não serão salvas.
+  Remember to click on `Update Policy Chain`, otherwise your changes will not be saved.
 
-  Agora você precisa realizar a promoção para o ambiente `Staging` e posteriormente com tudo validar em `Staging`, promover para `Production`
+  Now you need to carry out the promotion to the `Staging` environment and later, after everything validates in `Staging`, promote to `Production`
 
-  Para isso acesse o menu: Home > Products > Product ID > Integration > Configuration
+  To do this, access the menu: Home > Products > Product ID > Integration > Configuration
 
   ![Alt text](./imagens/image-5.png)
 
-  Pronto, o ponto de `Exclamação` deve ser ocultado após a promoção para `Staging`
+  Okay, the `Exclamation` point should be hidden after the promotion to `Staging`
 
-  Agora ao realizar uma chamada a sua API dentro do 3Scale, você será capaz de ver um objeto JSON com o seguinte conteúdo:
+  Now when making a call to your API within 3Scale, you will be able to see a JSON object with the following content:
   ```bash
     data = {
         user_information = {
@@ -150,7 +150,7 @@ spec:
     }
   ```
 
-## Referências:
+## References:
 
 [1] - https://access.redhat.com/products/openshift/
 

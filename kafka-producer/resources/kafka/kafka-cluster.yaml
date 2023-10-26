@@ -1,8 +1,8 @@
 apiVersion: kafka.strimzi.io/v1beta2
 kind: Kafka
 metadata:
-  name: kafka-cluster # Altere aqui para mudar o nome do recurso
-  namespace: kafka # Altere aqui caso seja outro namespace
+  name: kafka-cluster # Change here to change the resource name
+  namespace: kafka # Change here if it is another namespace
 spec:
   entityOperator:
     topicOperator: {}
