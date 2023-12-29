@@ -26,7 +26,7 @@
 
   To implement the Policy we need to perform some steps.
 
-  > 01 - Create the ConfigMap resource in the namespace that is deploying Red Hat 3Scale API Management.
+  > 01 - Create the Secret resource in the namespace that is deploying Red Hat 3Scale API Management.
 
   ```bash
     oc delete secret policy-kafka-producer -n 3scale
@@ -38,7 +38,7 @@
       -n 3scale
   ```
   
-  *Whenever there is a need to change the ConfigMap, it will be necessary to rollout the PODs `apicast-staging-*` e `apicast-production-*`*
+  *Whenever there is a need to change the Secret, it will be necessary to rollout the PODs `apicast-staging-*` e `apicast-production-*`*
 
   > 02 - In the resource, `kind: APIManager`, add the following content:
   ```bash
@@ -137,7 +137,8 @@ spec:
             query = query_param,
             headers = request_headers,
             request_headers_size = request_headers_size,
-            request_body_size = request_body_size
+            request_body_size = request_body_size,
+            start_time = os.date("%Y-%m-%d %H:%M:%S", request_start_time)
         },
         response = {
             status = ngx.status,
@@ -146,7 +147,8 @@ spec:
             response_body_size = response_body_size
         },
         service_id = service_id,
-        transaction_size = total_size
+        transaction_size = total_size,
+        transaction_duration_time = tonumber(ngx.var.original_request_time)
     }
   ```
 

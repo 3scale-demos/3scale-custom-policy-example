@@ -127,6 +127,8 @@ function _M:post_action(context)
 
     local user_key = (ngx.ctx.context and ngx.ctx.context.current and ngx.ctx.context.current.credentials and ngx.ctx.context.current.credentials.user_key) or nil
 
+    local request_start_time = ngx.req.start_time() or ngx.now()
+
     data = {
         user_information = {
             app_id = app_id,
@@ -139,16 +141,18 @@ function _M:post_action(context)
             query = query_param,
             headers = request_headers,
             request_headers_size = request_headers_size,
-            request_body_size = request_body_size
+            request_body_size = request_body_size,
+            start_time = os.date("%Y-%m-%d %H:%M:%S", request_start_time)
         },
         response = {
             status = ngx.status,
             headers = response_headers,
             response_headers_size = response_headers_size,
-            response_body_size = response_body_size
+            response_body_size = response_body_size,
         },
         service_id = service_id,
-        transaction_size = total_size
+        transaction_size = total_size,
+        transaction_duration_time = tonumber(ngx.var.original_request_time)
     }
 
     -- Send data to the temporary storage asynchronously
